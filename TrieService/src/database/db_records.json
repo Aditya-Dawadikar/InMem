@@ -2,20 +2,16 @@
     "version": "0.0.1",
     "db_list": [
         {
-            "db_name": "kanban",
+            "db_name": "test-db-1",
             "db_mode": "key-value-store",
             "db_status": "active",
             "created_at": 1691388765.165038
-        },{
-            "db_name": "infin8-makepoll",
-            "db_mode": "key-value-store",
+        },
+        {
+            "db_name": "test-db-2",
+            "db_mode": "document-store",
             "db_status": "active",
-            "created_at": 1691388765.165038
-        },{
-            "db_name": "mess-food-updates",
-            "db_mode": "key-value-store",
-            "db_status": "active",
-            "created_at": 1691388765.165038
+            "created_at": 1691388768.0
         }
     ]
 }

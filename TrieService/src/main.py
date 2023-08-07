@@ -21,11 +21,13 @@ def ping():
         status_code=200
     )
 
-from routes.trie import router as trie_router
 from routes.db_manager import router as db_manager_router
+from routes.trie import router as trie_router
+from routes.document_store import router as document_store_router
 
-app.include_router(trie_router, prefix="/database")
 app.include_router(db_manager_router, prefix="/manage-db")
+app.include_router(trie_router, prefix="/key-value-store")
+app.include_router(document_store_router, prefix="/document-store")
 
 if __name__=="__main__":
     uvicorn.run("main:app",

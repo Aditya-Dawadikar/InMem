@@ -1,17 +1,18 @@
 from fastapi import APIRouter
 from fastapi import HTTPException, Response, status
 from database.Setup import get_db
+from database.constants import DOCUMENT_STORE
 from typing import Optional
 from main import DB_REFERENCES
 
-from models.trie import (InsertDataRequest)
+from models.trie import (InsertDocumentRequest)
 
 router = APIRouter(
-    tags=["Key Value Store Router"]
+    tags=["Document Store Router"]
 )
 
 @router.get("/{db_name}")
-async def fetch_trie(db_name:str):
+async def fetch_documents(db_name:str):
     """
         This endpoint returns all the key-value pairs stored in the database
         -------------------------------------------
@@ -22,7 +23,7 @@ async def fetch_trie(db_name:str):
             response_list `list`:
                 List of key value pairs
     """
-    db = get_db(DB_REFERENCES, db_name)
+    db = get_db(DB_REFERENCES, db_name, DOCUMENT_STORE)
 
     op_status, data = db.describe(verbosity = False)
     if op_status != 1:
@@ -39,12 +40,12 @@ async def fetch_trie(db_name:str):
     
     return {
         "success": True,
-        "message": """Successfully fetched all keys""",
+        "message": """Successfully fetched all documents""",
         "data": response_list
     }
 
 @router.get("/{db_name}/search")
-async def search_trie(
+async def search_documents(
                         db_name: str,
                         key:str=None,
                         prefix: Optional[bool]=True
@@ -65,7 +66,7 @@ async def search_trie(
             response_list `list`:
                 List of key value pairs matching the input key
     """
-    db = get_db(DB_REFERENCES, db_name)
+    db = get_db(DB_REFERENCES, db_name, DOCUMENT_STORE)
 
     if key is None:
         return HTTPException(status_code=403, detail= f"""Invalid key "{key}" """)
@@ -106,8 +107,8 @@ async def search_trie(
     } 
 
 @router.post("/{db_name}/insert")
-async def insert_trie(db_name: str,
-                    req_body: InsertDataRequest):
+async def insert_document(db_name: str,
+                    req_body: InsertDocumentRequest):
     """
         This endpoint insert a key-value pair in the database
         -------------------------------------------
@@ -120,22 +121,21 @@ async def insert_trie(db_name: str,
         Output:
             success_message
     """
-    db = get_db(DB_REFERENCES, db_name)
+    db = get_db(DB_REFERENCES, db_name, DOCUMENT_STORE)
 
-    op_status,data = db.insert(key_string=req_body.key,
-              value=req_body.value)
+    op_status,data = db.insert(value=req_body.value)
 
     if op_status!=1:
         return HTTPException(status_code = 403, detail=data)
     
     return {
         "success": True,
-        "message": f"Successfully inserted data for key {req_body.key}",
-        "data": {"key":req_body.key, "value":data}
+        "message": f"Successfully inserted data.",
+        "data": {**data}
     }
 
 @router.delete("/{db_name}/delete")
-async def delete_key(db_name: str,
+async def delete_document(db_name: str,
                     key:str):
     """
         This endpoint deletes a key-value pair from the database
@@ -147,7 +147,7 @@ async def delete_key(db_name: str,
         Output:
             success_message
     """
-    db = get_db(DB_REFERENCES, db_name)
+    db = get_db(DB_REFERENCES, db_name, DOCUMENT_STORE)
 
     op_status,data = db.delete(key)
 
