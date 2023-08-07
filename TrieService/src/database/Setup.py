@@ -32,8 +32,7 @@ def initialize_all_tries(DB_REFERENCES):
 
 def get_db(DB_REFERENCES, db_name, db_mode=KEY_VALUE_STORE):
     db = DB_REFERENCES.get(db_name)
-    print(db_mode)
-    print(db)
+
     if db is None:
         raise HTTPException(status_code=404, detail= f"""Database "{db_name}" not found""")
     

@@ -43,7 +43,22 @@ class Trie:
         curr_node.value = value
         # curr_node.describe()
         return 1, value
-    
+
+    def delete_trie_node(self, curr_node):
+        if curr_node.key == "ROOT":
+            return
+
+        parent = curr_node.parent
+        
+        if len(parent.children) <= 1 and parent.value is None:
+            # current node is the only child
+            del curr_node
+            self.delete_trie_node(parent)
+        else:
+            # remove child reference from the parent
+            del parent.children[curr_node.key]
+            del curr_node
+
     def delete(self,key_string:str):
         if not is_valid_key(key_string):
             return -2, f"""Invalid Input "{key_string}" """
@@ -66,6 +81,12 @@ class Trie:
 
         # Delete data at the current node
         curr_node.value = None
+        
+        if len(curr_node.children) == 0:
+            # This is a leaf node
+            # Traverse Upwards to delete non branching nodes
+            self.delete_trie_node(curr_node)
+        
         return 1, f"Key {key_string} deleted successfully"
     
     def search(self,key_string:str):
