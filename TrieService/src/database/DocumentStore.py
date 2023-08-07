@@ -22,4 +22,4 @@ class DocumentStore(Trie):
         op_status, value = super().insert(document_id, value)
         
         if op_status == 1:
-            return op_status, {"id": document_id, **value}
+            return op_status, document_id, {"id": document_id, **value}

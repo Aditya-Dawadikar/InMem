@@ -7,6 +7,7 @@ from database.Setup import initialize_all_tries
 
 app = FastAPI()
 
+# Initialize Registered DBs and Cache
 DB_REFERENCES = {}
 initialize_all_tries(DB_REFERENCES)
 

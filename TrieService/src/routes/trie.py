@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from fastapi import HTTPException, Response, status
-from database.Setup import get_db
+from database.Setup import get_db, get_cache
 from typing import Optional
 from main import DB_REFERENCES
 
@@ -74,7 +74,19 @@ async def search_trie(
     if prefix:
         op_status, data = db.search_by_prefix(key_string=key)
     else:
-        op_status, data = db.search(key_string=key)
+        # Look-up cache
+        cache = get_cache(DB_REFERENCES, db_name)
+        cache_response = cache.get_cache_item(key)
+        if cache_response is not None:
+            # increment query frequency for Cache Hit
+            cache.increment_query_frequency(key)
+            op_status=1
+            data = cache_response
+        else:
+            op_status, data = db.search(key_string=key)
+
+            # Set Cache
+            cache.set_cache_item(key, data)
 
     if op_status == -1:
         raise HTTPException(status_code=404, detail=data)
@@ -127,7 +139,11 @@ async def insert_trie(db_name: str,
 
     if op_status!=1:
         return HTTPException(status_code = 403, detail=data)
-    
+
+    # Set Cache
+    cache = get_cache(DB_REFERENCES, db_name)
+    cache.set_cache_item(req_body.key, data)
+
     return {
         "success": True,
         "message": f"Successfully inserted data for key {req_body.key}",
@@ -153,7 +169,11 @@ async def delete_key(db_name: str,
 
     if op_status==-1:
         return HTTPException(status_code = 404, detail=data)
-    
+
+    # Remove from Cache
+    cache = get_cache(DB_REFERENCES, db_name)
+    cache.delete_cache_item(key)
+
     return {
         "success": True,
         "message": f"Successfully deleted data for key {key}",

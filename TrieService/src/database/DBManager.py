@@ -1,18 +1,11 @@
 import json
-from datetime import timezone
-import datetime
 import threading
+from services.Time import get_timestamp
 
 DB_RECORD_FILE = f"database/db_records.json"
 
 # Secure file lock for concurrent writes 
 file_lock = threading.Lock()
-
-def get_timestamp():
-    dt = datetime.datetime.now(timezone.utc)
-    utc_time = dt.replace(tzinfo=timezone.utc)
-    utc_timestamp = utc_time.timestamp()
-    return utc_timestamp
 
 def create_database(db_name, db_mode="key-value-store"):
     """

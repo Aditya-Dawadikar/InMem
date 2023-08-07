@@ -2,6 +2,7 @@ import json
 from database.Trie import Trie
 from database.DocumentStore import DocumentStore
 from database.constants import (KEY_VALUE_STORE, DOCUMENT_STORE)
+from cache.Cache import Cache
 from fastapi import HTTPException
 
 DB_RECORD_FILE = "database/db_records.json"
@@ -25,7 +26,8 @@ def initialize_all_tries(DB_REFERENCES):
             root = init_db(db_mode)
             DB_REFERENCES[db_name] = {
                                         "root":root,
-                                        "db_mode": db_mode
+                                        "db_mode": db_mode,
+                                        "cache": Cache()
                                     }
 
             print(f"Successfully initialized ROOT for database {db_name}. Root: {root}")
@@ -42,3 +44,11 @@ def get_db(DB_REFERENCES, db_name, db_mode=KEY_VALUE_STORE):
     err_msg = f"""Requested database "{db_name}" does not support {db_mode} mode."""
     
     raise HTTPException(status_code=403, detail= err_msg)
+
+def get_cache(DB_REFERENCES, db_name):
+    db = DB_REFERENCES.get(db_name)
+
+    if db is None:
+        raise HTTPException(status_code=404, detail= f"""Database "{db_name}" not found""")
+    
+    return db["cache"]
