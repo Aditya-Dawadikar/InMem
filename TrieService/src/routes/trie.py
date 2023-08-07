@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 from fastapi import HTTPException, Response, status
-from database.Setup import init
+from database.Setup import get_db
 from typing import Optional
+from main import DB_REFERENCES
 
 from models.trie import (InsertDataRequest)
 
@@ -9,10 +10,8 @@ router = APIRouter(
     tags=["Trie Router"]
 )
 
-db = init()
-
-@router.get("/")
-async def fetch_trie():
+@router.get("/{db_name}")
+async def fetch_trie(db_name:str):
     """
         This endpoint returns all the key-value pairs stored in the database
         -------------------------------------------
@@ -23,6 +22,8 @@ async def fetch_trie():
             response_list `list`:
                 List of key value pairs
     """
+    db = get_db(DB_REFERENCES, db_name)
+
     op_status, data = db.describe(verbosity = False)
     if op_status != 1:
         raise HTTPException(status_code=500, detail=data)
@@ -42,8 +43,9 @@ async def fetch_trie():
         "data": response_list
     }
 
-@router.get("/search")
+@router.get("/{db_name}/search")
 async def search_trie(
+                        db_name: str,
                         key:str=None,
                         prefix: Optional[bool]=True
                       ):
@@ -63,6 +65,7 @@ async def search_trie(
             response_list `list`:
                 List of key value pairs matching the input key
     """
+    db = get_db(DB_REFERENCES, db_name)
 
     if key is None:
         return HTTPException(status_code=403, detail= f"""Invalid key "{key}" """)
@@ -102,8 +105,9 @@ async def search_trie(
         "data": response_object
     } 
 
-@router.post("/insert")
-async def insert_trie(req_body: InsertDataRequest):
+@router.post("/{db_name}/insert")
+async def insert_trie(db_name: str,
+                    req_body: InsertDataRequest):
     """
         This endpoint insert a key-value pair in the database
         -------------------------------------------
@@ -116,6 +120,7 @@ async def insert_trie(req_body: InsertDataRequest):
         Output:
             success_message
     """
+    db = get_db(DB_REFERENCES, db_name)
 
     op_status,data = db.insert(key_string=req_body.key,
               value=req_body.value)
@@ -129,8 +134,9 @@ async def insert_trie(req_body: InsertDataRequest):
         "data": {"key":req_body.key, "value":data}
     }
 
-@router.delete("/delete")
-async def delete_key(key:str):
+@router.delete("/{db_name}/delete")
+async def delete_key(db_name: str,
+                    key:str):
     """
         This endpoint deletes a key-value pair from the database
         -------------------------------------------
@@ -141,6 +147,7 @@ async def delete_key(key:str):
         Output:
             success_message
     """
+    db = get_db(DB_REFERENCES, db_name)
 
     op_status,data = db.delete(key)
 

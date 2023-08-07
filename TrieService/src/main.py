@@ -3,10 +3,12 @@ from fastapi.responses import JSONResponse
 import uvicorn
 from config import PORT
 
-from routes.trie import router as trie_router
-from routes.db_manager import router as db_manager_router
+from database.Setup import initialize_all_tries
 
 app = FastAPI()
+
+DB_REFERENCES = {}
+initialize_all_tries(DB_REFERENCES)
 
 @app.get("/ping")
 def ping():
@@ -18,6 +20,9 @@ def ping():
             },
         status_code=200
     )
+
+from routes.trie import router as trie_router
+from routes.db_manager import router as db_manager_router
 
 app.include_router(trie_router, prefix="/database")
 app.include_router(db_manager_router, prefix="/manage-db")
