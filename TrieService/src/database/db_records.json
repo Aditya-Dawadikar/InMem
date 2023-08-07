@@ -1,0 +1,11 @@
+{
+    "version": "0.0.1",
+    "db_list": [
+        {
+            "db_name": "kanban",
+            "db_mode": "key-value-store",
+            "db_status": "active",
+            "created_at": 1691388765.165038
+        }
+    ]
+}

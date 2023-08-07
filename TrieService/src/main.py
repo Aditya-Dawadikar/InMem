@@ -4,6 +4,7 @@ import uvicorn
 from config import PORT
 
 from routes.trie import router as trie_router
+from routes.db_manager import router as db_manager_router
 
 app = FastAPI()
 
@@ -19,6 +20,7 @@ def ping():
     )
 
 app.include_router(trie_router, prefix="/database")
+app.include_router(db_manager_router, prefix="/manage-db")
 
 if __name__=="__main__":
     uvicorn.run("main:app",
