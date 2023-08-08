@@ -4,6 +4,7 @@ import uvicorn
 from config import PORT
 
 from database.Setup import initialize_all_tries
+from database.Cleanup import kill_cache_threads
 
 app = FastAPI()
 
@@ -29,6 +30,10 @@ from routes.document_store import router as document_store_router
 app.include_router(db_manager_router, prefix="/manage-db")
 app.include_router(trie_router, prefix="/key-value-store")
 app.include_router(document_store_router, prefix="/document-store")
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    kill_cache_threads(DB_REFERENCES)
 
 if __name__=="__main__":
     uvicorn.run("main:app",

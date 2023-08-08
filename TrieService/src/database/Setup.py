@@ -1,7 +1,10 @@
 import json
 from database.Trie import Trie
 from database.DocumentStore import DocumentStore
-from database.constants import (KEY_VALUE_STORE, DOCUMENT_STORE)
+from database.constants import (KEY_VALUE_STORE,
+                                DOCUMENT_STORE,
+                                CACHE_SIZE,
+                                CACHE_EXPIRATION)
 from cache.Cache import Cache
 from fastapi import HTTPException
 
@@ -27,7 +30,11 @@ def initialize_all_tries(DB_REFERENCES):
             DB_REFERENCES[db_name] = {
                                         "root":root,
                                         "db_mode": db_mode,
-                                        "cache": Cache()
+                                        "cache": Cache(
+                                            db_name=db_name,
+                                            max_items=CACHE_SIZE,
+                                            expiration=CACHE_EXPIRATION
+                                        )
                                     }
 
             print(f"Successfully initialized ROOT for database {db_name}. Root: {root}")
