@@ -11,7 +11,46 @@
             "db_name": "test-db-2",
             "db_mode": "document-store",
             "db_status": "active",
-            "created_at": 1691388768.0
+            "created_at": 1691388768.0,
+            "enforce_schema": false,
+            "schema": null
+        },
+        {
+            "db_name": "test-db-3",
+            "db_mode": "document-store",
+            "db_status": "active",
+            "created_at": 1691388777.0,
+            "enforce_schema": true,
+            "schema": {
+                "f_name": {
+                    "type": "string",
+                    "max_length": 10,
+                    "min_length": 1,
+                    "null_allowed": false,
+                    "pattern": null
+                },
+                "email": {
+                    "type": "email",
+                    "null_allowed": true
+                },
+                "age": {
+                    "type": "int",
+                    "null_allowed": false,
+                    "min_value": 0,
+                    "max_value": 120
+                },
+                "employee_id": {
+                    "type": "bigint",
+                    "null_allowed": false,
+                    "min_value": 1000000000000,
+                    "max_value": 9999999999999
+                },
+                "employment_duration":{
+                    "type": "number",
+                    "null_allowed": false,
+                    "min_value": 0.0
+                }
+            }
         }
     ]
 }

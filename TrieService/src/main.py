@@ -3,6 +3,8 @@ from fastapi.responses import JSONResponse
 import uvicorn
 from config import PORT
 
+from exceptions.http_exceptions import add_http_exception_handlers
+
 from database.Setup import initialize_all_tries
 from database.Cleanup import kill_cache_threads
 
@@ -30,6 +32,8 @@ from routes.document_store import router as document_store_router
 app.include_router(db_manager_router, prefix="/manage-db")
 app.include_router(trie_router, prefix="/key-value-store")
 app.include_router(document_store_router, prefix="/document-store")
+
+add_http_exception_handlers(app)
 
 @app.on_event("shutdown")
 async def on_shutdown():

@@ -5,6 +5,8 @@ from database.constants import (KEY_VALUE_STORE,
                                 DOCUMENT_STORE,
                                 CACHE_SIZE,
                                 CACHE_EXPIRATION)
+from exceptions.errors import (ResourceNotFoundError,
+                               BadRequestError)
 from cache.Cache import Cache
 from fastapi import HTTPException
 
@@ -27,6 +29,7 @@ def initialize_all_tries(DB_REFERENCES):
             db_name = record["db_name"]
             db_mode = record["db_mode"]
             root = init_db(db_mode)
+            
             DB_REFERENCES[db_name] = {
                                         "root":root,
                                         "db_mode": db_mode,
@@ -36,6 +39,11 @@ def initialize_all_tries(DB_REFERENCES):
                                             expiration=CACHE_EXPIRATION
                                         )
                                     }
+            
+            if db_mode == DOCUMENT_STORE:
+                if record.get("enforce_schema") is True:
+                    DB_REFERENCES[db_name]["enforce_schema"] = True
+                    DB_REFERENCES[db_name]["schema"] = record.get("schema")
 
             print(f"Successfully initialized ROOT for database {db_name}. Root: {root}")
 
@@ -43,19 +51,30 @@ def get_db(DB_REFERENCES, db_name, db_mode=KEY_VALUE_STORE):
     db = DB_REFERENCES.get(db_name)
 
     if db is None:
-        raise HTTPException(status_code=404, detail= f"""Database "{db_name}" not found""")
+        raise ResourceNotFoundError(f"""Database "{db_name}" not found""")
     
     if db_mode == db["db_mode"]:
         return db["root"]
     
     err_msg = f"""Requested database "{db_name}" does not support {db_mode} mode."""
     
-    raise HTTPException(status_code=403, detail= err_msg)
+    raise BadRequestError(err_msg)
 
 def get_cache(DB_REFERENCES, db_name):
     db = DB_REFERENCES.get(db_name)
 
     if db is None:
-        raise HTTPException(status_code=404, detail= f"""Database "{db_name}" not found""")
+        raise ResourceNotFoundError(f"""Database "{db_name}" not found""")
     
     return db["cache"]
+
+def get_schema(DB_REFERENCES, db_name):
+    db = DB_REFERENCES.get(db_name)
+    
+    if db is None:
+        raise ResourceNotFoundError(f"""Database "{db_name}" not found""")
+    
+    return {
+        "enforce_schema": db.get("enforce_schema"),
+        "schema": db.get("schema")
+    }
