@@ -1,15 +1,19 @@
 import React, { useState } from 'react'
 
 import Navigation from '../components/common/Navigation';
-import { BsDatabaseAdd } from 'react-icons/bs'
-
 import DBCard from '../components/common/DBCard';
 import FormContainer from '../components/common/FormContainer';
 
+import {useSelector, useDispatch} from 'react-redux'
+import { openForm, closeForm } from '../redux/actions/FormActions';
+
+import { BsDatabaseAdd } from 'react-icons/bs'
 
 const Home = () => {
 
-    const [createDbForm, setCreateDbForm] = useState(false)
+    const dispatch = useDispatch()
+
+    const formState = useSelector((state)=>state.form)
 
     const [dbCards, setDbCards] = useState([
         {
@@ -31,17 +35,19 @@ const Home = () => {
     ])
 
     function handleOpenCreateDBForm(){
-        setCreateDbForm(true)
+        dispatch(openForm())
     }
 
     function handleCloseCreateDBForm(){
-        setCreateDbForm(false)
+        dispatch(closeForm())
     }
 
     return (
         <div>
             {
-                createDbForm === true ? <FormContainer closeForm={handleCloseCreateDBForm}/> : <></>
+                formState.show === true ? <FormContainer
+                    closeForm={handleCloseCreateDBForm}
+                    formType={"CREATE_DB"}/> : <></>
             }
             <Navigation></Navigation>
             <div className='row'>
