@@ -28,10 +28,12 @@ def ping():
 from routes.db_manager import router as db_manager_router
 from routes.trie import router as trie_router
 from routes.document_store import router as document_store_router
+from routes.auth import router as auth_router
 
 app.include_router(db_manager_router, prefix="/manage-db")
 app.include_router(trie_router, prefix="/key-value-store")
 app.include_router(document_store_router, prefix="/document-store")
+app.include_router(auth_router, prefix="/auth")
 
 add_http_exception_handlers(app)
 
